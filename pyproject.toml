@@ -1,0 +1,27 @@
+[project]
+name = "glassplitter"
+version = "0.1.0"
+description = "A sentence splitter and tokenizer."
+authors = [{ name = "Luis Glaser", email = "Luis.Glaser@em.uni-frankfurt.de" }]
+readme = "README.md"
+classifiers = ["Private :: Do not Upload"]
+requires-python = ">=3.8"
+dependencies = ["transformers", "pysbd"]
+
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "ruff"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[tool.ruff]
+select = ["B", "E", "F", "I", "T20"]
