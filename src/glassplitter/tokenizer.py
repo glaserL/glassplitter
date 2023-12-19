@@ -16,23 +16,17 @@ def next_index(current_index: int, span_dict: Dict[int, str]):
     return end
 
 
-def cumulative_lengths(span_dict: Dict[int, str]) -> Dict[int, int]:
-    result = {}
-    for i in span_dict.keys():
-        cumulative = sum(len(span_dict.get(j, "")) for j in range(0, i + 1))
-        result[i] = cumulative
-    return result
-
-
 class Tokenizer:
     @classmethod
     def _init_tokenizer(cls):
         if not hasattr(cls, "_tok"):
             cls._tok = BertTokenizerFast.from_pretrained("bert-base-uncased")
 
-    def __init__(self, lang="en", clean=True, doc_type="pdf") -> None:
+    def __init__(self, lang="en", clean=True, doc_type="pdf", join_char=" 分 ") -> None:
         self._init_tokenizer()
-        self.segmenter = pysbd.Segmenter(language=lang, clean=clean, doc_type=doc_type)
+        segmenter = pysbd.Segmenter(language=lang, clean=clean, doc_type=doc_type)
+        self._segment = lambda raw_text: segmenter.segment(raw_text)
+        self._join_char = join_char
 
     def split(self, spans: Iterable[Tuple[str, Dict]], trim=True):
         return self._split([span for span, _ in spans], trim)
@@ -42,10 +36,9 @@ class Tokenizer:
             spans = {i: span for i, span in enumerate(spans) if len(span.strip())}
         else:
             spans = {i: span for i, span in enumerate(spans)}
-        text = " ".join([span for span in spans.values()])
-        cum_lens = cumulative_lengths(spans)
+        text = self._join_char.join([span for span in spans.values()])
 
-        sents = self.segmenter.segment(text)
+        sents = self._segment(text)
 
         results: List[List[Tuple[str, int]]] = []
         span_id = min(k for k in spans.keys())
@@ -58,11 +51,9 @@ class Tokenizer:
             for i, _ in enumerate(encodings["input_ids"]):
                 begin, end = encodings["offset_mapping"][i]
                 token = sent[begin:end]
-
-                j = next_index(span_id, spans)
-
-                if (text_offset + begin) >= cum_lens[span_id]:
-                    span_id = j
+                if self._join_char.strip() in token:
+                    span_id = next_index(span_id, spans)
+                    continue
 
                 result.append((token, span_id))
 
