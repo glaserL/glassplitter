@@ -1,6 +1,6 @@
 [project]
 name = "glassplitter"
-version = "0.1.1"
+version = "0.1.2"
 description = "A sentence splitter and tokenizer."
 authors = [{ name = "Luis Glaser", email = "Luis.Glaser@em.uni-frankfurt.de" }]
 readme = "README.md"
