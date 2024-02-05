@@ -1,0 +1,43 @@
+name: Tag versions
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ssh-key: "${{ secrets.RELEASE_KEY }}"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - run: pip install toml-cli
+
+      - name: Extract version from pyproject.toml
+        id: get_version
+        run: echo "VERSION=$(toml get --toml-path pyproject.toml project.version)" >> $GITHUB_ENV
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if [ $(git tag -l "${{ env.VERSION }}") ]; then
+            echo "MISSING=false" >> $GITHUB_OUTPUT
+          else
+            echo "MISSING=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Tag new version
+        if: ${{ steps.check_tag.outputs.MISSING == 'true' }}
+        run: |
+              git config --global user.email "action@github.com"
+              git config --global user.name "GitHub Action"
+              git tag -a "${{ env.VERSION }}" -m "Release ${{ env.VERSION }}"
+              git push --atomic origin "${{ env.VERSION }}"
