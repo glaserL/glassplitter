@@ -71,3 +71,21 @@ class Tokenizer:
         logger.debug(f"Split {len(sents)}. {hits}/{words} hits. ({hits/words:.0%})")
 
         return results
+
+    def split_flat(self, sentences: Iterable[str], trim=True):
+        if trim:
+            sentences = [s for s in sentences if len(s.strip())]
+
+        text = " ".join(sentences)
+        sents = self._segment(text)
+
+        result = []
+        for sent in sents:
+            encodings = self._tok(sent, return_offsets_mapping=True)
+            for i, _ in enumerate(encodings["input_ids"]):
+                begin, end = encodings["offset_mapping"][i]
+                token = sent[begin:end]
+                if len(token):
+                    result.append(token)
+
+        return result

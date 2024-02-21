@@ -77,3 +77,45 @@ def test_trim_removes_surrounding_empty_tokens(tokenizer: Tokenizer):
             ("!", 1),
         ]
     ]
+
+
+def test_split_flat_creates_correct_splitting(tokenizer: Tokenizer):
+    example = [
+        "I am a sentence with trailing space. ",
+        "Different Box",
+        " from the rest of the sentence.Hello there.",
+        "StudNr something wrt TUD & KHG",
+    ]
+    actual = tokenizer.split_flat(example, trim=True)
+    assert actual == [
+        "I",
+        "am",
+        "a",
+        "sentence",
+        "with",
+        "trailing",
+        "space",
+        ".",
+        "Different",
+        "Box",
+        "from",
+        "the",
+        "rest",
+        "of",
+        "the",
+        "sentence",
+        ".",
+        "Hello",
+        "there",
+        ".",
+        "Stud",
+        "Nr",
+        "something",
+        "wr",
+        "t",
+        "TU",
+        "D",
+        "&",
+        "K",
+        "HG",
+    ]
