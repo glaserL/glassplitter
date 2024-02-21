@@ -55,7 +55,8 @@ class Tokenizer:
                     span_id = next_index(span_id, spans)
                     continue
 
-                result.append((token, span_id))
+                if not trim or len(token):
+                    result.append((token, span_id))
 
                 if len(token) > 1:
                     words += 1
