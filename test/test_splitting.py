@@ -1,4 +1,5 @@
 import pytest
+
 from glassplitter.tokenizer import Tokenizer
 
 
