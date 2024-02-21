@@ -1,5 +1,6 @@
-import logging
 from typing import Dict, Iterable, List, Tuple
+
+import logging
 
 import pysbd
 from transformers import BertTokenizerFast
